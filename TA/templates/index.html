@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="icon" href="">
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+      body {
+        padding-top: 2rem;
+      }
+      .starter-template {
+        padding: 3rem 1.5rem;
+        text-align: center;
+      }
+    </style>
+    <title>Prototype Web Tanda Tangan Digital</title>
+  </head>
+  <body>
+
+<main role="main" class="container">
+  <div class="starter-template">
+    <h1>Prototype Web Tanda Tangan Digital</h1><br />
+    <p class="lead">Prototype tanda tangan digital yang dikembangkan untuk memenuhi tugas akhir Muhammad Rizqi Ramadhan</p>
+    <br /><br />
+    <a href="#forma"><button id="start" style="width: 100px;" class="btn btn-tw btn-secondary">Mulai</button></a>
+    <br /><br/><hr/>
+  </div>
+  <div id="forma" style="display:none">
+    <div class="row">
+      <h3 class="col-sm-4">Upload and Sign:</h3>
+      <img id="endpoint"></img>
+    </div>
+    <br>
+    <form id="formdata" enctype="multipart/form-data" method="POST" action="/sign">
+      <div class="form-group">
+        <input type="hidden" id="region" name="region">
+        <input type="hidden" id="x1" name="x1">
+        <input type="hidden" id="x2" name="x2">
+        <input type="hidden" id="y1" name="y1">
+        <input type="hidden" id="y2" name="y2">
+        <input type="hidden" id="ycom" name="ycom">
+        <div class="form-group row">
+          <label for="name" class="col-form-label col-sm-4">Nama : </label>
+          <input type="text" class="form-control col-sm-2" id="name" name="name" placeholder="Nama" required>
+        </div>
+        <div class="form-group row">
+          <label for="email" class="col-form-label col-sm-4">Email : </label>
+          <input type="email" class="form-control col-sm-2" id="email" name="email" placeholder="user@example.com" required>
+        </div>
+        <div class="form-group row">
+          <p class="col-form-label col-sm-4">Tujuan Dokumen : </p>
+          <div class="form-check form-check-inline">
+            <input type="radio" class="form-check-input" id="pround" checked>
+            <label for="round" class="form-check-label">Personal Use</label>
+          </div>
+          <div class="form-check form-check-inline">
+            <input type="radio" class="form-check-input" id="cround">
+            <label for="cround" class="form-check-label">Corporate Use</label>
+          </div>
+        </div>
+        <div class="form-group row">
+          <label for="font" class="col-form-label col-sm-4">Algoritma Tanda Tangan Digital:</label>
+            <select class="form-control custom-select col-sm-2" id="font" name="font">
+              <!-- Make sure to change scope and add one-word explanation -->
+              <option value="RSA">RSA</option>
+              <option value="ECDSA">ECDSA</option>
+              <option value="EdDSA">EdDSA</option>
+            </select>
+        </div>
+        <div class="form-group row">
+          <label for="page" class="col-form-label col-sm-4">Halaman: </label>
+          <input type="number" class="form-control col-sm-2" id="page" name="page" placeholder="Page No." min="1" step="1" required>
+        </div>
+        <div class="form-group row">
+          <label for="sig" class="col-form-label col-sm-4">Upload ttd: </label>
+          <input type="file" style="padding: 0" class="form-control-file col-sm-5" id="sig" name="sig" accept=".png" required>
+        </div>
+        <div class="form-group row">
+          <label for="file" class="col-form-label col-sm-4">Pilih dokumen: </label>
+          <input type="file" style="padding: 0" class="form-control-file col-sm-5" id="file" name="file" accept=".pdf" required>
+        </div>
+      </div>
+      <div id="post_upload" style="display:none;">
+        <p>Please drag out and select the area on the page where you would like your seal to be applied.<br /><b><u>*Note</u></b>: This service assumes that your document is portrait-oriented and A4. Other dimensions may lead to placement errors.</p>
+        <canvas style="border:1px solid #000000;" id="pgCanvas"></canvas><br>
+        <span><button id="area" class="btn btn-tw btn-outline-secondary">Select Area</button><button id="submit1" type="submit" style="margin-left: 10px;" class="btn btn-tw btn-danger" disabled>Submit</button></span>
+      </div>
+    </form>
+  </div>
+  <br />
+</main><!-- /.container -->
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.5.207/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.5.207/pdf.worker.entry.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.5.207/pdf.worker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.5.207/pdf_viewer.min.css"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  </body>
+</html>
