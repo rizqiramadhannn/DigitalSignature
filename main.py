@@ -1,5 +1,8 @@
+import psutil
+process = psutil.Process()
+mem_before = process.memory_info().rss
 #library untuk web
-from flask import Flask, render_template, request, send_file 
+from flask import Flask, render_template, request, send_file, redirect
 import os
 import shutil
 import datetime
@@ -17,9 +20,8 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.x509.oid import NameOID
 from cryptography.hazmat.primitives.serialization import pkcs12
-
-#utils for pdf signing / manipulation
-from PIL import Image
+import PyPDF2
+from PyPDF2 import PdfFileReader
 
 app = Flask('app')
 
@@ -64,7 +66,7 @@ def load(name, algo):
     summary['OpenSSL Version'] = OpenSSL.__version__
     # Generating a Private Key...
     if algo == "RSA":
-        key = createKeyPair_RSA(OpenSSL.crypto.TYPE_RSA, 1024)
+        key = createKeyPair_RSA(OpenSSL.crypto.TYPE_RSA, 2048)
     elif algo == "ECDSA":
         key_time = time.time()
         key = ec.generate_private_key(ec.SECP384R1())
@@ -190,6 +192,8 @@ def sign_file(input_file: str, signatureID: str, x1: int,
     sign_time = time.time()
     doc.Save(output_file, SDFDoc.e_incremental)
     print("Waktu proses sign pdf      : %s second" % (time.time() - sign_time))
+    mem_after = process.memory_info().rss
+    print(f"Total memory usage: {(mem_after - mem_before) / 1024 ** 2} megabytes")
     # Develop a Process Summary
     summary = {
         "Input File": input_file, "Signature ID": signatureID, 
@@ -212,14 +216,12 @@ def sign():
   if request.method == "POST":
     
     name = request.form['name']
-    email = request.form['email']
     algorithm = request.form['algorithm']
     y_compensator = round(float(request.form['ycom']))
     x1 = int(request.form['x1'])
     y1 = y_compensator - int(request.form['y1'])
     x2 = int(request.form['x2'])
     y2 = y_compensator - int(request.form['y2'])
-    region = request.form['region']
     page = request.form['page']
     data = request.files.get('file', None)
     img = request.files.get('sig', None)
@@ -245,9 +247,41 @@ def sign():
     data = request.files.get('file', None)
     if data.filename.rsplit('.', 1)[1].lower() == "pdf":
         sign_file(input_file=".\static\source.pdf", signatureID=name, x1=x1, x2=x2, y1=y1, y2=y2, pages=page, output_file=".\static\\result.pdf")
-        r = send_file(".\static\\result.pdf", mimetype="application/pdf", as_attachment=False)
         os.remove("source.pdf")
-        return r
+        return send_file(".\static\\result.pdf", mimetype="application/pdf", as_attachment=True)
     else: 
       return render_template("error.html", e="Wrong File Type, not a PDF", c="PDF File Error")
+@app.route('/check', methods=["POST"])
+def check():
+    if request.method == "POST":
+        PDFNet.Initialize("demo:1668463720500:7ab997d50300000000920d5913c61681297d78eb39c9ece75410ae7bea")
+        data = request.files.get('filecheck', None)
+        if data.filename:
+            fn = os.path.basename(data.filename)
+            open(fn, 'wb').write(data.read())
+            os.rename(data.filename, "source.pdf")
+            shutil.move(".\source.pdf", ".\static\source.pdf")
+
+        key_time = time.time()
+        # Open an existing PDF
+        doc = PDFDoc(".\static\source.pdf")
+
+        # Choose a security level to use, and change any verification options you wish to change
+        opts = VerificationOptions(VerificationOptions.e_compatibility_and_archiving)
+
+        # Add trust root to store of trusted certificates contained in VerificationOptions.
+        opts.AddTrustedCertificate(".\static\certificate.cer")
+
+        result = doc.VerifySignedDigitalSignatures(opts)
+        print("Waktu proses verify      : %s second" % (time.time() - key_time))
+        src = "http://docs.google.com/gview?url=http://rizqiramadhannn.pythonanywhere.com/static/source.pdf&embedded=true"
+        previewpdf = 'style=display:block;'
+        if result == 0:
+            return render_template("index.html", value="Dokumen tidak memiliki digital signature", src=src, previewpdf=previewpdf)
+        elif result == 1:
+            return render_template("index.html", value="Dokumen memiliki invalid digital signature", src=src, previewpdf=previewpdf)
+        else :
+            return render_template("index.html", value="Dokumen memiliki untrusted digital signature", src=src, previewpdf=previewpdf)
+    else:
+        return render_template("error.html", e="Wrong File Type, not a PDF", c="PDF File Error")
 app.run(host='0.0.0.0', port=8080, debug=True)

@@ -31,6 +31,20 @@
         padding: 3rem 1.5rem;
         text-align: center;
       }
+
+      #buttons {
+        display: flex;
+        justify-content: center;
+      }
+
+      #buttons > a {
+        margin-left: 1rem;
+        margin-right: 1rem;
+      }
+
+      #preview {
+        display: none;
+      }
     </style>
     <title>Prototype Web Tanda Tangan Digital</title>
   </head>
@@ -41,8 +55,33 @@
     <h1>Prototype Web Tanda Tangan Digital</h1><br />
     <p class="lead">Prototype tanda tangan digital yang dikembangkan untuk memenuhi tugas akhir Muhammad Rizqi Ramadhan</p>
     <br /><br />
-    <a href="#forma"><button id="start" style="width: 100px;" class="btn btn-tw btn-secondary">Mulai</button></a>
+    <div id="buttons">
+      <a href="#forma"><button id="ttd" style="width: 100px;" class="btn btn-tw btn-secondary">Tanda Tangan</button></a>
+      <a href="#formb"><button id="check" style="width: 100px;" class="btn btn-tw btn-secondary">Cek Dokumen</button></a>
+    </div>
     <br /><br/><hr/>
+  </div>
+  <div id="formb" style="display:none">
+    <div class="row">
+      <h3 class="col-sm-4">Upload and Check:</h3>
+      <img id="endpoint"></img>
+    </div>
+    <br>
+    <form id="formdatab" enctype="multipart/form-data" method="POST" action="/check">
+        <div class="form-group row">
+          <label for="filecheck" class="col-form-label col-sm-4">Pilih dokumen: </label>
+          <input type="file" style="padding: 0" class="form-control-file col-sm-5" id="filecheck" name="filecheck" accept=".pdf" required>
+        </div>
+      </div>
+      <div id="post_uploadb" style="display:none;">
+        <span><button id="submit2" type="submit" style="margin-left: 10px;" class="btn btn-tw btn-danger">Submit</button></span>
+      </div>
+    </form>
+    <div id="status">
+      {{ value }}
+    </div>
+    <iframe id="preview" src="{{ src }}" width="100%" height="800px" {{ previewpdf }}>
+    </iframe>
   </div>
   <div id="forma" style="display:none">
     <div class="row">
@@ -88,7 +127,7 @@
           <input type="file" style="padding: 0" class="form-control-file col-sm-5" id="file" name="file" accept=".pdf" required>
         </div>
       </div>
-      <div id="post_upload" style="display:none;">
+      <div id="post_uploada" style="display:none;">
         <p>Please drag out and select the area on the page where you would like your seal to be applied.<br /><b><u>*Note</u></b>: This service assumes that your document is portrait-oriented and A4. Other dimensions may lead to placement errors.</p>
         <canvas style="border:1px solid #000000;" id="pgCanvas"></canvas><br>
         <span><button id="area" class="btn btn-tw btn-outline-secondary">Select Area</button><button id="submit1" type="submit" style="margin-left: 10px;" class="btn btn-tw btn-danger" disabled>Submit</button></span>

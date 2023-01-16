@@ -1,9 +1,22 @@
-document.getElementById("start").addEventListener('click', function() 
+document.getElementById("ttd").addEventListener('click', function() 
     {
+        document.getElementById("formb").style.display = "none";
+        document.getElementById("post_uploadb").style.display = "none";
+        document.getElementById("preview").style.display = "none";
         document.getElementById("forma").style.display = "";
+        document.getElementById("status").innerHTML = "";
         fetch('https://ipinfo.io/json')
             .then(response => response.json())
             .then(data => document.getElementById("region").value = data.region);
+    });
+
+document.getElementById("check").addEventListener('click', function() 
+    {
+        document.getElementById("forma").style.display = "none";
+        document.getElementById("post_uploada").style.display = "none";
+        document.getElementById("preview").style.display = "none";
+        document.getElementById("formb").style.display = "";
+        document.getElementById("status").innerHTML = "";
     });
 
 document.getElementById("file").addEventListener('change', function() {
@@ -18,13 +31,9 @@ document.getElementById("file").addEventListener('change', function() {
     });
 })
 
-function showRotationInput(el) {
-    if (el.value == "square") {
-        document.getElementById("rgroup").style.display = "none";
-    } else {
-        document.getElementById("rgroup").style.display = "";
-    }
-}
+document.getElementById("filecheck").addEventListener('change', function() {
+    document.getElementById("post_uploadb").style.display = "";
+})
 
 var rect = {};
 var drag = false;
@@ -35,7 +44,7 @@ var vh;
 function loadCanvas(fileuri) {
     console.log(fileuri);
     c = document.getElementById("pgCanvas");
-    document.getElementById("post_upload").style.display = "";
+    document.getElementById("post_uploada").style.display = "";
     ctx = c.getContext("2d");
     pdfjsLib.getDocument({url: fileuri}).promise.then(function(doc) {
         doc.getPage(parseInt(document.getElementById("page").value)).then(function(page) {
@@ -97,44 +106,12 @@ document.getElementById("area").addEventListener("click", function(e) {
     }
 })
 
-document.getElementById("checkimg").addEventListener("click", async function(e) {
-    e.target.disabled = true;
-    e.target.innerHTML = "Generating Preview..."
-    var data = {
-        name: document.getElementById("name").value,
-    }
-    await fetch("/test", {
-        method: "POST", 
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-    })
-      .then(response => response.text())
-      .then((res) => {
-        e.target.disabled = false; 
-        e.target.innerHTML = "Preview Seal"
-        if (!res.includes("Error")) {
-            // document.getElementById("errortag").style.display = "none";
-            // if (document.getElementById("rotation").value != "" && document.querySelector('input[name="shape"]:checked').value == "round") {
-            //     var rotation_input = document.getElementById("rotation").value;
-            //     var negative_compensator = (rotation_input < 0) ? "" : "-";
-            //     var angle = (rotation_input < 0) ? rotation_input.toString().substring(1) : rotation_input.toString();
-            //     document.getElementById("endpoint").style.transform = "rotate(" + negative_compensator + angle + "deg)";
-            // } else {
-            //     document.getElementById("endpoint").style.transform = "";
-            // }
-            document.getElementById("endpoint").style.transform = "";
-            document.getElementById("endpoint").width = "100";
-            document.getElementById("endpoint").src="data:img/png;base64," + res;
-        } else {
-            console.log(res);
-            document.getElementById("errortag").style.display = "";
-        }
-      })
-  })
-
 document.getElementById("formdata").addEventListener("submit", function(e) {
     document.getElementById("submit1").disabled=true;
+    e.target.submit();
+})
+
+document.getElementById("formdatab").addEventListener("submit", function(e) {
+    document.getElementById("submit2").disabled=true;
     e.target.submit();
 })
